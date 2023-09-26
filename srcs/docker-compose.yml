@@ -1,0 +1,59 @@
+version: '3'
+
+services:
+  nginx:
+    hostname: fde-albe.42.fr
+    container_name: fde-albe_nginx
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+    image: nginx
+    ports:
+          - '443:443'
+    restart: always
+    volumes:
+      - wp:/var/www/html
+    depends_on:
+      - wordpress
+
+  wordpress:
+    container_name: fde-albe_wordpress
+    build:
+      context: ./requirements/wordpress
+      dockerfile: Dockerfile
+    image: wordpress
+    restart: always
+    volumes:
+      - wp:/var/www/html
+    env_file:
+      - .env
+
+  mariadb:
+    container_name: fde-albe_mariadb
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+    image: mariadb
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+    env_file:
+      - .env
+
+networks:
+  default:
+    name: fde-albe_inception
+
+volumes:
+  wp:
+    driver: local
+    driver_opts:
+      device: /home/fde-albe/data
+      o: bind
+      type: none
+  db:
+    driver: local
+    driver_opts:
+      device: /home/fde-albe/data
+      o: bind
+      type: none
